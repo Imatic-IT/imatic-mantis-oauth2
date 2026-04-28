@@ -1,0 +1,12 @@
+{
+  "name": "imatic-oauth2",
+  "version": "1.0.0",
+  "scripts": {
+    "build": "webpack -p",
+    "build:watch": "webpack -p --devtool inline-sourcemap --watch"
+  },
+  "dependencies": {
+    "webpack": "^4.41.6",
+    "webpack-cli": "^3.3.11"
+  }
+}

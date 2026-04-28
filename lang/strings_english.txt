@@ -1,0 +1,2 @@
+<?php
+$s_plugin_ImaticOAuth2_or_divider = 'or';
