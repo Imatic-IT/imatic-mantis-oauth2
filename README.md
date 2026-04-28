@@ -125,8 +125,6 @@ ImaticOAuth2/
 │   └── admin.php           — admin UI: list and unlink identities
 ├── config/
 │   └── config.php          — configuration reference (no runtime logic)
-├── schema/
-│   └── 001_create_identities.sql
 ├── js/
 │   └── index.js            — webpack source
 ├── files/
