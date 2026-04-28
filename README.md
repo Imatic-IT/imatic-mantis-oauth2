@@ -148,11 +148,3 @@ ImaticOAuth2/
 
 Register a redirect URI in Azure: `https://your-mantis.example.com/plugin.php?page=ImaticOAuth2/callback`
 
-## Future work
-
-- **Auto-registration** — create a new Mantis user from the OAuth identity when `allow_registration = true` (skeleton already wired, needs implementation)
-- **Self-service identity linking** — let users link/unlink their own OAuth identities from the profile page (not just admins)
-- **curl fallback** — use curl when `allow_url_fopen` is off
-- **Token introspection endpoint** — expose an endpoint so an external MCP server can validate tokens issued by this plugin, enabling per-user identity in Claude Team / Cowork
-- **Group/role mapping** — map Keycloak roles or groups to Mantis access levels on login
-- **Google Workspace** — tested and documented provider example
