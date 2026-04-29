@@ -1,6 +1,6 @@
 # ImaticOAuth2
 
-Mantis plugin that adds OAuth2 / OIDC login alongside the standard username+password form. Tested with Keycloak; any provider that exposes an OIDC discovery document (`.well-known/openid-configuration`) works.
+Mantis plugin that adds OAuth2 / OIDC login alongside the standard username+password form. Tested with Keycloak.
 
 ## Requirements
 
@@ -71,12 +71,15 @@ In Keycloak admin:
 
 ```
 1. User clicks logout
-2. Mantis core detects AuthFlags::setLogoutRedirectPage() for this user
-   and redirects to the plugin logout page (no JS needed)
-3. Plugin reads the user's provider from DB, then calls auth_logout()
-4. Browser is redirected to Keycloak's end_session_endpoint
-5. Keycloak clears its SSO session and redirects back to Mantis login page
+2. JS intercept rewrites the logout link to the plugin logout page
+   (only active when the OAuth session cookie is present)
+3. Plugin reads the provider from the session cookie, calls auth_logout()
+4. Browser is redirected to the provider's end_session_endpoint
+5. Provider clears its SSO session and redirects back to the Mantis login page
 ```
+
+Standard Mantis username/password sessions are not affected — the JS intercept
+only fires when the `imatic_oauth2_session` cookie is set.
 
 ### User resolution
 
@@ -133,7 +136,11 @@ ImaticOAuth2/
 └── webpack.config.js
 ```
 
-## Microsoft Entra ID (Azure AD)
+## Other providers
+
+Any provider that exposes an OIDC discovery document works. Only Keycloak has been tested.
+
+### Microsoft Entra ID (Azure AD) — untested
 
 ```php
 'microsoft' => [
