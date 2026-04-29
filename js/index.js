@@ -43,23 +43,5 @@
         }
     }
 
-    // Logout intercept — rewrites logout links to the plugin logout page so the
-    // provider's end_session endpoint is called alongside the Mantis logout.
-    var logoutScript = document.querySelector('script[data-oauth2-logout-url]');
-    if (logoutScript) {
-        var logoutUrl = logoutScript.getAttribute('data-oauth2-logout-url');
-
-        function interceptLogout() {
-            document.querySelectorAll('a[href*="logout_page.php"]').forEach(function(link) {
-                link.href = logoutUrl;
-            });
-        }
-
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', interceptLogout);
-        } else {
-            interceptLogout();
-        }
-    }
 
 })();
