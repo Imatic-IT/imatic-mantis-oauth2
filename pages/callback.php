@@ -61,6 +61,13 @@ try {
         exit;
     }
 
+    setcookie(IMATIC_OAUTH2_COOKIE_NAME, $provider, [
+        'expires'  => 0,
+        'path'     => '/',
+        'httponly' => true,
+        'samesite' => 'Lax',
+    ]);
+
     print_header_redirect(config_get('default_home_page'));
 
 } catch (Throwable $e) {

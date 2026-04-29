@@ -71,8 +71,9 @@ In Keycloak admin:
 
 ```
 1. User clicks logout
-2. JS intercepts the logout_page.php link and redirects to plugin logout page
-3. Plugin calls auth_logout() (clears Mantis session)
+2. Mantis core detects AuthFlags::setLogoutRedirectPage() for this user
+   and redirects to the plugin logout page (no JS needed)
+3. Plugin reads the user's provider from DB, then calls auth_logout()
 4. Browser is redirected to Keycloak's end_session_endpoint
 5. Keycloak clears its SSO session and redirects back to Mantis login page
 ```
