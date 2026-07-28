@@ -9,6 +9,7 @@ class ImaticOAuth2Core {
     private const SESSION_STATE    = 'oauth2_state';
     private const SESSION_VERIFIER = 'oauth2_code_verifier';
     private const SESSION_PROVIDER = 'oauth2_provider';
+    private const SESSION_RETURN   = 'oauth2_return';
 
     public static function getEnabledProviders(): array {
         static $cache = null;
@@ -49,7 +50,7 @@ class ImaticOAuth2Core {
         return self::applyPublicUrl($url, $provider);
     }
 
-    public static function startFlow(string $providerKey): void {
+    public static function startFlow(string $providerKey, string $returnUrl = ''): void {
         $provider   = self::getProviderConfig($providerKey);
         $endpoints  = self::discoverEndpoints($provider['discovery_url']);
 
@@ -63,6 +64,10 @@ class ImaticOAuth2Core {
         $_SESSION[self::SESSION_STATE]    = $state;
         $_SESSION[self::SESSION_VERIFIER] = $codeVerifier;
         $_SESSION[self::SESSION_PROVIDER] = $providerKey;
+        // Preserve the page the user originally requested (the login page's
+        // `return` param), so the callback can send them back there after
+        // authentication instead of dropping them on the default home page.
+        $_SESSION[self::SESSION_RETURN]   = $returnUrl;
 
         $callbackUrl  = self::getCallbackUrl($providerKey);
         $authEndpoint = self::applyPublicUrl($endpoints['authorization_endpoint'], $provider);
@@ -113,6 +118,20 @@ class ImaticOAuth2Core {
             : self::fetchUserinfo($endpoints['userinfo_endpoint'], $tokens['access_token']);
 
         return self::resolveUser($providerKey, $userinfo);
+    }
+
+    /**
+     * Return (and clear) the URL the user was heading to before login was
+     * required. Empty string when none was stored. The caller is responsible
+     * for sanitising it (open-redirect protection) before redirecting.
+     */
+    public static function popReturnUrl(): string {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+        $return = $_SESSION[self::SESSION_RETURN] ?? '';
+        unset($_SESSION[self::SESSION_RETURN]);
+        return (string) $return;
     }
 
     private static function exchangeCode(

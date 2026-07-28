@@ -76,6 +76,12 @@ class ImaticOAuth2Plugin extends MantisPlugin {
             return;
         }
 
+        // The login page carries the originally requested page in `return`
+        // (Mantis redirects unauthenticated users to login_page.php?return=…).
+        // Forward it through the OAuth start URL so it survives the provider
+        // round-trip and the callback can send the user back there.
+        $return = gpc_get_string('return', '');
+
         $buttons = [];
         foreach ($providers as $key => $provider) {
             $url = html_entity_decode(
@@ -83,6 +89,10 @@ class ImaticOAuth2Plugin extends MantisPlugin {
                 ENT_QUOTES,
                 'UTF-8'
             ) . '&provider=' . urlencode($key) . '&action=' . IMATIC_OAUTH2_ACTION_START;
+
+            if ($return !== '') {
+                $url .= '&return=' . urlencode($return);
+            }
 
             $buttons[] = [
                 'url'   => $url,

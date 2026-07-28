@@ -34,7 +34,9 @@ if ($action === IMATIC_OAUTH2_ACTION_START) {
 }
 
 if ($action === IMATIC_OAUTH2_ACTION_START) {
-    ImaticOAuth2Core::startFlow($provider);
+    // Carry the originally requested page (login page's `return`) through the
+    // provider round-trip so the callback can send the user back to it.
+    ImaticOAuth2Core::startFlow($provider, gpc_get_string('return', ''));
     exit;
 }
 
@@ -68,7 +70,16 @@ try {
         'samesite' => 'Lax',
     ]);
 
-    print_header_redirect(config_get('default_home_page'));
+    // Send the user back to the page they originally requested. Open-redirect
+    // protection: string_sanitize_url() forces a local Mantis URL, so a forged
+    // `return` cannot bounce them off-site. Fall back to the default home page
+    // when no return was preserved.
+    $returnUrl = ImaticOAuth2Core::popReturnUrl();
+    print_header_redirect(
+        $returnUrl !== ''
+            ? string_sanitize_url($returnUrl, true)
+            : config_get('default_home_page')
+    );
 
 } catch (Throwable $e) {
     error_page('OAuth2 login failed: ' . htmlspecialchars($e->getMessage()));
