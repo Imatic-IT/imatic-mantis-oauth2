@@ -75,11 +75,15 @@ try {
     // `return` cannot bounce them off-site. Fall back to the default home page
     // when no return was preserved.
     $returnUrl = ImaticOAuth2Core::popReturnUrl();
-    print_header_redirect(
-        $returnUrl !== ''
-            ? string_sanitize_url($returnUrl, true)
-            : config_get('default_home_page')
-    );
+    $target    = $returnUrl !== '' ? $returnUrl : config_get('default_home_page');
+
+    // Sanitising is delegated to print_header_redirect()'s $p_sanitize flag,
+    // which internally calls string_sanitize_url($url, true) -> an absolute,
+    // same-origin URL (open-redirect protection preserved). We must NOT
+    // pre-sanitise here: passing an already-absolute URL with the default
+    // $p_absolute=false makes print_header_redirect() prepend config path again,
+    // producing https://host/https://host/... .
+    print_header_redirect($target, true, true);
 
 } catch (Throwable $e) {
     error_page('OAuth2 login failed: ' . htmlspecialchars($e->getMessage()));
