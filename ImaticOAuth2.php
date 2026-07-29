@@ -1,5 +1,6 @@
 <?php
-define( 'IMATIC_OAUTH2_LOGIN_PAGE',    'login_page.php' );
+define( 'IMATIC_OAUTH2_LOGIN_PAGE',       'login_page.php' );
+define( 'IMATIC_OAUTH2_CREDENTIAL_PAGE',  'login_password_page.php' );
 define( 'IMATIC_OAUTH2_COOKIE_NAME',  'imatic_oauth2_session' );
 define( 'IMATIC_OAUTH2_ACTION_START', 'start' );
 define( 'IMATIC_OAUTH2_ACTION_LINK',   'link' );
@@ -111,6 +112,14 @@ class ImaticOAuth2Plugin extends MantisPlugin {
     }
 
     private function isLoginPage(): bool {
-        return basename($_SERVER['SCRIPT_NAME'] ?? '') === IMATIC_OAUTH2_LOGIN_PAGE;
+        // login_page.php       — normal login entry point
+        // login_password_page.php — password / credential step, also where core
+        //   reauthentication (admin & config pages) sends an already-logged-in
+        //   user. Injecting the provider buttons here lets reauth use OAuth2
+        //   instead of forcing a password; auth_login_user() in the callback
+        //   sets TOKEN_AUTHENTICATED, which satisfies the reauth check.
+        $page = basename($_SERVER['SCRIPT_NAME'] ?? '');
+        return $page === IMATIC_OAUTH2_LOGIN_PAGE
+            || $page === IMATIC_OAUTH2_CREDENTIAL_PAGE;
     }
 }
